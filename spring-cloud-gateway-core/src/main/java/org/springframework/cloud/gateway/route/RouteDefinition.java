@@ -36,6 +36,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 /**
  * @author Spencer Gibb
  */
+// 对Route进行定义，最终会被RouteLocator解析为Route
 @Validated
 public class RouteDefinition {
 	@NotEmpty

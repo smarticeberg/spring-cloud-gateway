@@ -33,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 /**
  * @author Spencer Gibb
  */
+// 以spring.cloud.gateway配置为前缀的properties会绑定GatewayProperties
 @ConfigurationProperties("spring.cloud.gateway")
 @Validated
 public class GatewayProperties {
@@ -42,11 +43,12 @@ public class GatewayProperties {
 	 */
 	@NotNull
 	@Valid
-	private List<RouteDefinition> routes = new ArrayList<>();
+	private List<RouteDefinition> routes = new ArrayList<>(); // 对Route进行定义
 
 	/**
 	 * List of filter definitions that are applied to every route.
 	 */
+	// 默认的filter列表，默认的filter会应用到每一个Route上，gateway处理时会将与Route指定的Filter进行合并后并逐个执行
 	private List<FilterDefinition> defaultFilters = new ArrayList<>();
 
 	private List<MediaType> streamingMediaTypes = Arrays.asList(MediaType.TEXT_EVENT_STREAM,

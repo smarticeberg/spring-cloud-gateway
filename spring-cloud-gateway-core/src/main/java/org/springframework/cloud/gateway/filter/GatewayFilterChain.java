@@ -17,6 +17,7 @@ public interface GatewayFilterChain {
 	 * @param exchange the current server exchange
 	 * @return {@code Mono<Void>} to indicate when request handling is complete
 	 */
+	// 委派给下一个filter
 	Mono<Void> filter(ServerWebExchange exchange);
 
 }

@@ -151,13 +151,13 @@ public class GatewayAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(HttpClient.class)
 	protected static class NettyConfiguration {
-		@Bean
+		@Bean // order:1.2
 		@ConditionalOnMissingBean
 		public HttpClient httpClient(@Qualifier("nettyClientOptions") Consumer<? super HttpClientOptions.Builder> options) {
 			return HttpClient.create(options);
 		}
 
-		@Bean
+		@Bean //order:1.1
 		public Consumer<? super HttpClientOptions.Builder> nettyClientOptions(HttpClientProperties properties) {
 			return opts -> {
 
@@ -233,19 +233,19 @@ public class GatewayAutoConfiguration {
 			return new HttpClientProperties();
 		}
 
-		@Bean
+		@Bean // order:1.3
 		public NettyRoutingFilter routingFilter(HttpClient httpClient,
 												ObjectProvider<List<HttpHeadersFilter>> headersFilters,
 												HttpClientProperties properties) {
 			return new NettyRoutingFilter(httpClient, headersFilters, properties);
 		}
 
-		@Bean
+		@Bean //order:1.4
 		public NettyWriteResponseFilter nettyWriteResponseFilter(GatewayProperties properties) {
 			return new NettyWriteResponseFilter(properties.getStreamingMediaTypes());
 		}
 
-		@Bean
+		@Bean //order:1.5
 		public ReactorNettyWebSocketClient reactorNettyWebSocketClient(@Qualifier("nettyClientOptions") Consumer<? super HttpClientOptions.Builder> options) {
 			return new ReactorNettyWebSocketClient(options);
 		}
@@ -269,25 +269,26 @@ public class GatewayAutoConfiguration {
 		return new RouteLocatorBuilder(context);
 	}
 
-	@Bean
+	@Bean //order:4.1
 	@ConditionalOnMissingBean
 	public PropertiesRouteDefinitionLocator propertiesRouteDefinitionLocator(GatewayProperties properties) {
 		return new PropertiesRouteDefinitionLocator(properties);
 	}
 
-	@Bean
+	@Bean //order:4.2
 	@ConditionalOnMissingBean(RouteDefinitionRepository.class)
 	public InMemoryRouteDefinitionRepository inMemoryRouteDefinitionRepository() {
 		return new InMemoryRouteDefinitionRepository();
 	}
 
-	@Bean
-	@Primary
+	@Bean //order:4.3
+	@Primary //优先被注入
 	public RouteDefinitionLocator routeDefinitionLocator(List<RouteDefinitionLocator> routeDefinitionLocators) {
+		// 组合多个RouteDefinitionLocator，RouteDefinition可来自数据库,或者缓存
 		return new CompositeRouteDefinitionLocator(Flux.fromIterable(routeDefinitionLocators));
 	}
 
-	@Bean
+	@Bean //order:4.4
 	public RouteLocator routeDefinitionRouteLocator(GatewayProperties properties,
 												   List<GatewayFilterFactory> GatewayFilters,
 												   List<RoutePredicateFactory> predicates,
@@ -307,7 +308,7 @@ public class GatewayAutoConfiguration {
 		return new RouteRefreshListener(publisher);
 	}
 
-	@Bean
+	@Bean //order:2.6
 	public FilteringWebHandler filteringWebHandler(List<GlobalFilter> globalFilters) {
 		return new FilteringWebHandler(globalFilters);
 	}
@@ -327,7 +328,7 @@ public class GatewayAutoConfiguration {
 
 	// ConfigurationProperty beans
 
-	@Bean
+	@Bean //order:2.7
 	public GatewayProperties gatewayProperties() {
 		return new GatewayProperties();
 	}
@@ -363,12 +364,12 @@ public class GatewayAutoConfiguration {
 		return new AdaptCachedBodyGlobalFilter();
 	}
 
-	@Bean
+	@Bean //order:2.1
 	public RouteToRequestUrlFilter routeToRequestUrlFilter() {
 		return new RouteToRequestUrlFilter();
 	}
 
-	@Bean
+	@Bean //order:2.2
 	@ConditionalOnBean(DispatcherHandler.class)
 	public ForwardRoutingFilter forwardRoutingFilter(ObjectProvider<DispatcherHandler> dispatcherHandler) {
 		return new ForwardRoutingFilter(dispatcherHandler);
@@ -379,12 +380,12 @@ public class GatewayAutoConfiguration {
 		return new ForwardPathFilter();
 	}
 
-	@Bean
+	@Bean //order:2.3
 	public WebSocketService webSocketService() {
 		return new HandshakeWebSocketService();
 	}
 
-	@Bean
+	@Bean //order:2.4
 	public WebsocketRoutingFilter websocketRoutingFilter(WebSocketClient webSocketClient,
 														 WebSocketService webSocketService,
 														 ObjectProvider<List<HttpHeadersFilter>> headersFilters) {

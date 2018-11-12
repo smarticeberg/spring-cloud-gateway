@@ -43,6 +43,7 @@ public interface GatewayFilter extends ShortcutConfigurable {
 	 * @param chain provides a way to delegate to the next filter
 	 * @return {@code Mono<Void>} to indicate when request processing is complete
 	 */
+	// 处理完filter逻辑后，委派给filterchain，filterchain再委派给下一个filter
 	Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain);
 
 }

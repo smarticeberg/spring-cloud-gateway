@@ -35,7 +35,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 public class FilterDefinition {
 	@NotNull
 	private String name;
-	private Map<String, String> args = new LinkedHashMap<>();
+	private Map<String, String> args = new LinkedHashMap<>(); //一个键值对参数用于构造Filter对象
 
 	public FilterDefinition() {
 	}

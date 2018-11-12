@@ -31,7 +31,8 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.t
 /**
  * @author Spencer Gibb
  */
-@FunctionalInterface
+// 生产Predicate，顶级接口
+@FunctionalInterface //函数式接口声明
 public interface RoutePredicateFactory<C> extends ShortcutConfigurable, Configurable<C> {
 	String PATTERN_KEY = "pattern";
 
@@ -61,8 +62,9 @@ public interface RoutePredicateFactory<C> extends ShortcutConfigurable, Configur
 
 	default void beforeApply(C config) {}
 
-	Predicate<ServerWebExchange> apply(C config);
+	Predicate<ServerWebExchange> apply(C config); // 用于生产Predicate，接收泛型参数config
 
+	// 包装成AsyncPredicate是为了使用非阻塞模型
 	default AsyncPredicate<ServerWebExchange> applyAsync(C config) {
 		return toAsyncPredicate(apply(config));
 	}

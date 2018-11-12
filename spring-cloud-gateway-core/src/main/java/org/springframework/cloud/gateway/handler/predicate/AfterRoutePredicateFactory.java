@@ -45,6 +45,7 @@ public class AfterRoutePredicateFactory extends AbstractRoutePredicateFactory<Af
 	@Override
 	public Predicate<ServerWebExchange> apply(Config config) {
 		ZonedDateTime datetime = getZonedDateTime(config.getDatetime());
+		// 判断当前时间是否在config指定的datetime之后
 		return exchange -> {
 			final ZonedDateTime now = ZonedDateTime.now();
 			return now.isAfter(datetime);
