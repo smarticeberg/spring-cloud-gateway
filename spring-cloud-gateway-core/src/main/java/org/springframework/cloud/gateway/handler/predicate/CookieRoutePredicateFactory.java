@@ -52,6 +52,7 @@ public class CookieRoutePredicateFactory extends AbstractRoutePredicateFactory<C
 				return false;
 			}
 			for (HttpCookie cookie : cookies) {
+				// 请求Cookie正则匹配特定值
 				if (cookie.getValue().matches(config.regexp)) {
 					return true;
 				}

@@ -32,12 +32,14 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class HostRoutePredicateFactory extends AbstractRoutePredicateFactory<HostRoutePredicateFactory.Config> {
 
+	// 路径匹配器
 	private PathMatcher pathMatcher = new AntPathMatcher(".");
 
 	public HostRoutePredicateFactory() {
 		super(Config.class);
 	}
 
+	// 可以设置匹配器
 	public void setPathMatcher(PathMatcher pathMatcher) {
 		this.pathMatcher = pathMatcher;
 	}
@@ -51,6 +53,7 @@ public class HostRoutePredicateFactory extends AbstractRoutePredicateFactory<Hos
 	public Predicate<ServerWebExchange> apply(Config config) {
 		return exchange -> {
 			String host = exchange.getRequest().getHeaders().getFirst("Host");
+			// 匹配
 			return this.pathMatcher.match(config.getPattern(), host);
 		};
 	}

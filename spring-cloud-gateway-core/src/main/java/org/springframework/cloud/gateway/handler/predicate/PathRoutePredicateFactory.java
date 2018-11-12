@@ -59,16 +59,20 @@ public class PathRoutePredicateFactory extends AbstractRoutePredicateFactory<Pat
 
 	@Override
 	public Predicate<ServerWebExchange> apply(Config config) {
+		// 这边使用同步，是因为pathPatternParser.parse是非线程安全的操作。
+		// https://github.com/spring-projects/spring-framework/blob/master/spring-web/src/main/java/org/springframework/web/util/pattern/PathPatternParser.java#L99
 		synchronized (this.pathPatternParser) {
 			pathPatternParser.setMatchOptionalTrailingSeparator(config.isMatchOptionalTrailingSeparator());
 			config.pathPattern = this.pathPatternParser.parse(config.pattern);
 		}
 		return exchange -> {
+			// 解析Path
 			PathContainer path = parsePath(exchange.getRequest().getURI().getPath());
-
+			// 匹配
 			boolean match = config.pathPattern.matches(path);
 			traceMatch("Pattern", config.pathPattern.getPatternString(), path, match);
 			if (match) {
+				// 解析路径参数，例如 path=/foo/123 <=> /foo/{segment}
 				PathMatchInfo uriTemplateVariables = config.pathPattern.matchAndExtract(path);
 				exchange.getAttributes().put(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVariables);
 				return true;

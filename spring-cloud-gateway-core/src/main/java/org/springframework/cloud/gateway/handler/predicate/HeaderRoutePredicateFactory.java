@@ -49,6 +49,7 @@ public class HeaderRoutePredicateFactory extends AbstractRoutePredicateFactory<H
 			List<String> values = exchange.getRequest().getHeaders().get(config.header);
 			if (values != null) {
 				for (String value : values) {
+					// 正则匹配
 					if (value.matches(config.regexp)) {
 						return true;
 					}

@@ -91,6 +91,7 @@ public class BetweenRoutePredicateFactory extends AbstractRoutePredicateFactory<
 	public static ZonedDateTime getZonedDateTime(Object value) {
 		ZonedDateTime dateTime;
 		if (value instanceof ZonedDateTime) {
+			// Java|Kotlin配置Route时是ZonedDateTime类型
 			dateTime = ZonedDateTime.class.cast(value);
 		} else {
 			dateTime = parseZonedDateTime(value.toString());
@@ -101,12 +102,14 @@ public class BetweenRoutePredicateFactory extends AbstractRoutePredicateFactory<
 	public static ZonedDateTime parseZonedDateTime(String dateString) {
 		ZonedDateTime dateTime;
 		try {
+			// 数字
 			long epoch = Long.parseLong(dateString);
 
 			dateTime = Instant.ofEpochMilli(epoch).atOffset(ZoneOffset.ofTotalSeconds(0))
 					.toZonedDateTime();
 		} catch (NumberFormatException e) {
 			// try ZonedDateTime instead
+			// 字符串
 			dateTime = ZonedDateTime.parse(dateString);
 		}
 
