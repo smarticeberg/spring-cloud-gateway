@@ -22,8 +22,10 @@ import reactor.core.publisher.Flux;
 /**
  * @author Spencer Gibb
  */
+// 组合多种RouteDefinitionLocator
 public class CompositeRouteDefinitionLocator implements RouteDefinitionLocator {
 
+	// RouteDefinitionLocator数组
 	private final Flux<RouteDefinitionLocator> delegates;
 
 	public CompositeRouteDefinitionLocator(Flux<RouteDefinitionLocator> delegates) {

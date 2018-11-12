@@ -92,6 +92,7 @@ public interface ShortcutConfigurable {
 		}
 		if (rawValue != null && rawValue.startsWith("#{") && entryValue.endsWith("}")) {
 			// assume it's spel
+			// 认为是SPEL表达式，带有模板的ParserContext
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 			Expression expression = parser.parseExpression(entryValue, new TemplateParserContext());

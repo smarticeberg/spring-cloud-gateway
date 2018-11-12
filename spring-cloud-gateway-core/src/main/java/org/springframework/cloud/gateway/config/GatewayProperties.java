@@ -43,12 +43,14 @@ public class GatewayProperties {
 	 */
 	@NotNull
 	@Valid
+	// 通过spring.cloud.gateway.routes配置
 	private List<RouteDefinition> routes = new ArrayList<>(); // 对Route进行定义
 
 	/**
 	 * List of filter definitions that are applied to every route.
 	 */
 	// 默认的filter列表，默认的filter会应用到每一个Route上，gateway处理时会将与Route指定的Filter进行合并后并逐个执行
+	// 通过spring.cloud.gateway.default-filters配置
 	private List<FilterDefinition> defaultFilters = new ArrayList<>();
 
 	private List<MediaType> streamingMediaTypes = Arrays.asList(MediaType.TEXT_EVENT_STREAM,

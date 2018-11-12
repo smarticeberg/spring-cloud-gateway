@@ -32,10 +32,13 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 /**
  * @author Spencer Gibb
  */
+//通过名字对应org.springframework.cloud.gateway.handler.predicate.RoutePredicateFactory的实现类，例如name=Query对应到QueryRoutePredicateFactory
 @Validated
 public class PredicateDefinition {
+	// 谓语定义名字
 	@NotNull
 	private String name;
+	// 参数数组:例如，name=Host/args={"_genkey_0":"iocoder.cn"}，匹配请求的hostname为iocoder.cn。
 	private Map<String, String> args = new LinkedHashMap<>();
 
 	public PredicateDefinition() {

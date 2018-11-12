@@ -52,11 +52,14 @@ public class CachingRouteLocator implements RouteLocator {
 	 * Clears the routes cache
 	 * @return routes flux
 	 */
+	// 清空routes缓存
 	public Flux<Route> refresh() {
 		this.cache.clear();
 		return this.routes;
 	}
 
+	// 监听org.springframework.context.ApplicationEvent.RefreshRoutesEvent事件，刷新缓存。
+	// 在GatewayControllerEndpoint中有一个HTTP API：refresh，发布RefreshRoutesEvent事件。
 	@EventListener(RefreshRoutesEvent.class)
 	/* for testing */ void handleRefresh() {
 		refresh();

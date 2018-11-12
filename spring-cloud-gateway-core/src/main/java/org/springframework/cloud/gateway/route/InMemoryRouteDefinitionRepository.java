@@ -30,8 +30,10 @@ import reactor.core.publisher.Mono;
 /**
  * @author Spencer Gibb
  */
+// 从内存中读取路由配置
 public class InMemoryRouteDefinitionRepository implements RouteDefinitionRepository {
 
+	//内存配置映射
 	private final Map<String, RouteDefinition> routes = synchronizedMap(new LinkedHashMap<String, RouteDefinition>());
 
 	@Override

@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 /**
  * @author Spencer Gibb
  */
+// 从YML或properties配置文件中读取
 public class PropertiesRouteDefinitionLocator implements RouteDefinitionLocator {
 
 	private final GatewayProperties properties;

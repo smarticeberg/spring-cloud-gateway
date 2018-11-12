@@ -39,23 +39,33 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 // 对Route进行定义，最终会被RouteLocator解析为Route
 @Validated
 public class RouteDefinition {
+	// id，唯一
 	@NotEmpty
 	private String id = UUID.randomUUID().toString();
 
+	// 谓语定义数组，请求通过predicates是否匹配。在Route里，PredicateDefinition转换成Predicate。单个Predicate中不要出现逗号。
 	@NotEmpty
 	@Valid
 	private List<PredicateDefinition> predicates = new ArrayList<>();
 
+	// 过滤器定义数组，在Route里，FilterDefinition转换成GatewayFilter
 	@Valid
 	private List<FilterDefinition> filters = new ArrayList<>();
 
+	// 路由的uri
 	@NotNull
 	private URI uri;
 
+	// 顺序
 	private int order = 0;
 
 	public RouteDefinition() {}
 
+	/**
+	 * 通过text创建RouteDefinition对象<br/>
+	 * 例如 route001=http://127.0.0.1,Host=**.addrequestparameter.org,Path=/get
+	 * @param text
+	 */
 	public RouteDefinition(String text) {
 		int eqIdx = text.indexOf('=');
 		if (eqIdx <= 0) {

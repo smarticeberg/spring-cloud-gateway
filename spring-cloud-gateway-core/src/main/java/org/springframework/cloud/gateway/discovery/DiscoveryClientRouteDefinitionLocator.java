@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
  * TODO: change to RouteLocator? use java dsl
  * @author Spencer Gibb
  */
+// 从注册中心读取路由配置（Eureka|Consul|Zookeeper|Etcd）
 public class DiscoveryClientRouteDefinitionLocator implements RouteDefinitionLocator {
 
 	private final DiscoveryClient discoveryClient;
@@ -89,8 +90,10 @@ public class DiscoveryClientRouteDefinitionLocator implements RouteDefinitionLoc
 					String serviceId = instance.getServiceId();
 
                     RouteDefinition routeDefinition = new RouteDefinition();
+                    // 设置ID
                     routeDefinition.setId(this.routeIdPrefix + serviceId);
 					String uri = urlExpr.getValue(evalCtxt, instance, String.class);
+					// 设置URI
 					routeDefinition.setUri(URI.create(uri));
 
 					final ServiceInstance instanceForEval = new DelegatingServiceInstance(instance, properties);

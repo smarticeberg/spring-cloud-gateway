@@ -33,8 +33,10 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  */
 @Validated
 public class FilterDefinition {
+	// 过滤器定义的名字
 	@NotNull
 	private String name;
+	// 参数数组：例如，name=AddRequestParameter/args={"_genkey_0":"foo","_genkey_1":"bar"}
 	private Map<String, String> args = new LinkedHashMap<>(); //一个键值对参数用于构造Filter对象
 
 	public FilterDefinition() {
