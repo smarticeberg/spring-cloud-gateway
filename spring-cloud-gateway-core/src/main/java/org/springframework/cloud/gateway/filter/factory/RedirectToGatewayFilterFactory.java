@@ -35,6 +35,7 @@ import reactor.core.publisher.Mono;
 /**
  * @author Spencer Gibb
  */
+// 响应重定向到指定URL
 public class RedirectToGatewayFilterFactory extends AbstractGatewayFilterFactory<RedirectToGatewayFilterFactory.Config> {
 
 	public static final String STATUS_KEY = "status";
@@ -55,8 +56,10 @@ public class RedirectToGatewayFilterFactory extends AbstractGatewayFilterFactory
 	}
 
 	public GatewayFilter apply(String statusString, String urlString) {
+		// 解析status，是否是3xx重定向状态
 		final HttpStatus httpStatus = parse(statusString);
 		Assert.isTrue(httpStatus.is3xxRedirection(), "status must be a 3xx code, but was " + statusString);
+		// 创建url
 		final URI url = URI.create(urlString);
 		return apply(httpStatus, url);
 	}
@@ -66,8 +69,10 @@ public class RedirectToGatewayFilterFactory extends AbstractGatewayFilterFactory
 		return (exchange, chain) ->
 			chain.filter(exchange).then(Mono.defer(() -> {
 				if (!exchange.getResponse().isCommitted()) {
+					// 设置响应状态
 					setResponseStatus(exchange, httpStatus);
 
+					// 设置响应header
 					final ServerHttpResponse response = exchange.getResponse();
 					response.getHeaders().set(HttpHeaders.LOCATION, uri.toString());
 					return response.setComplete();

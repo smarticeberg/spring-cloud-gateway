@@ -98,6 +98,7 @@ public class ServerWebExchangeUtils {
 	}
 
 	public static void addOriginalRequestUrl(ServerWebExchange exchange, URI url) {
+		// 数组，考虑多次重写。RewritePathGatewayFilterFactory / PrefixPathGatewayFilterFactory多次重写
 		exchange.getAttributes().computeIfAbsent(GATEWAY_ORIGINAL_REQUEST_URL_ATTR, s -> new LinkedHashSet<>());
 		LinkedHashSet<URI> uris = exchange.getRequiredAttribute(GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
 		uris.add(url);

@@ -32,6 +32,7 @@ import static org.springframework.util.StringUtils.commaDelimitedListToStringArr
 /**
  * @author Spencer Gibb
  */
+// 根据 ws:// / wss:// 前缀( Scheme )过滤处理
 public class WebsocketRoutingFilter implements GlobalFilter, Ordered {
 	private static final Log log = LogFactory.getLog(WebsocketRoutingFilter.class);
 	public static final String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";

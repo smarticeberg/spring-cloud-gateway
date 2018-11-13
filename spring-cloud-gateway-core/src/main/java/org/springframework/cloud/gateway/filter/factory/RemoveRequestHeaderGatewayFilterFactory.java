@@ -41,7 +41,7 @@ public class RemoveRequestHeaderGatewayFilterFactory extends AbstractGatewayFilt
 	public GatewayFilter apply(NameConfig config) {
 		return (exchange, chain) -> {
 			ServerHttpRequest request = exchange.getRequest().mutate()
-					.headers(httpHeaders -> httpHeaders.remove(config.getName()))
+					.headers(httpHeaders -> httpHeaders.remove(config.getName())) // 移除请求相关的header
 					.build();
 
 			return chain.filter(exchange.mutate().request(request).build());

@@ -45,19 +45,24 @@ public class RewritePathGatewayFilterFactory extends AbstractGatewayFilterFactor
 
 	@Override
 	public GatewayFilter apply(Config config) {
+		// '$\'替代'$'，避免和YAML语法冲突
 		String replacement = config.replacement.replace("$\\", "$");
 		return (exchange, chain) -> {
 			ServerHttpRequest req = exchange.getRequest();
+			// 添加原始请求URI到GATEWAY_ORIGINAL_REQUEST_URL_ATTR
 			addOriginalRequestUrl(exchange, req.getURI());
 			String path = req.getURI().getRawPath();
+			// 重写path
 			String newPath = path.replaceAll(config.regexp, replacement);
 
+			// 创建新的ServerHttpRequest
 			ServerHttpRequest request = req.mutate()
 					.path(newPath)
 					.build();
-
+			// 添加请求URI到GATEWAY_REQUEST_URL_ATTR
 			exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, request.getURI());
 
+			// 创建新的ServerWebChange，提交过滤器链继续过滤
 			return chain.filter(exchange.mutate().request(request).build());
 		};
 	}

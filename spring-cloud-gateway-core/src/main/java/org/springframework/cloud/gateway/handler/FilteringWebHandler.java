@@ -49,6 +49,7 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
 public class FilteringWebHandler implements WebHandler {
 	protected static final Log logger = LogFactory.getLog(FilteringWebHandler.class);
 
+	// 全局过滤器
 	private final List<GatewayFilter> globalFilters;
 
 	public FilteringWebHandler(List<GlobalFilter> globalFilters) {
@@ -58,7 +59,9 @@ public class FilteringWebHandler implements WebHandler {
 	private static List<GatewayFilter> loadFilters(List<GlobalFilter> filters) {
 		return filters.stream()
 				.map(filter -> {
+					// 委托GlobalFilter为GatewayFilterAdapter
 					GatewayFilterAdapter gatewayFilter = new GatewayFilterAdapter(filter);
+					// 如果GlobalFilter实现了ordered，再委托一层给OrderedGatewayFilter
 					if (filter instanceof Ordered) {
 						int order = ((Ordered) filter).getOrder();
 						return new OrderedGatewayFilter(gatewayFilter, order);
@@ -74,21 +77,26 @@ public class FilteringWebHandler implements WebHandler {
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange) {
+		// 获得route
 		Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
+		// 获得gatewayfilter
 		List<GatewayFilter> gatewayFilters = route.getFilters();
 
 		List<GatewayFilter> combined = new ArrayList<>(this.globalFilters);
 		combined.addAll(gatewayFilters);
 		//TODO: needed or cached?
+		// 排序
 		AnnotationAwareOrderComparator.sort(combined);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Sorted gatewayFilterFactories: "+ combined);
 		}
 
+		// 创建DefaultGatewayFIlterChain
 		return new DefaultGatewayFilterChain(combined).filter(exchange);
 	}
 
+	// 网关过滤器默认实现
 	private static class DefaultGatewayFilterChain implements GatewayFilterChain {
 
 		private final int index;
@@ -122,6 +130,7 @@ public class FilteringWebHandler implements WebHandler {
 		}
 	}
 
+	// 适配GlobalFilter为GatewayFilter
 	private static class GatewayFilterAdapter implements GatewayFilter {
 
 		private final GlobalFilter delegate;

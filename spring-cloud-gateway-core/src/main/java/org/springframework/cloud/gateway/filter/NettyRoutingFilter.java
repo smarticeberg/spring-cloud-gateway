@@ -79,22 +79,27 @@ public class NettyRoutingFilter implements GlobalFilter, Ordered {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+		// 获取requestUrl
 		URI requestUrl = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
 
 		String scheme = requestUrl.getScheme();
 		if (isAlreadyRouted(exchange) || (!"http".equals(scheme) && !"https".equals(scheme))) {
 			return chain.filter(exchange);
 		}
+		// 设置已经路由
 		setAlreadyRouted(exchange);
 
 		ServerHttpRequest request = exchange.getRequest();
 
+		// request method
 		final HttpMethod method = HttpMethod.valueOf(request.getMethod().toString());
+		// 获得url
 		final String url = requestUrl.toString();
 
 		HttpHeaders filtered = filterRequest(this.headersFilters.getIfAvailable(),
 				exchange);
 
+		// request header
 		final DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
 		filtered.forEach(httpHeaders::set);
 
@@ -103,12 +108,13 @@ public class NettyRoutingFilter implements GlobalFilter, Ordered {
 
 		boolean preserveHost = exchange.getAttributeOrDefault(PRESERVE_HOST_HEADER_ATTRIBUTE, false);
 
+		// 请求
 		Mono<HttpClientResponse> responseMono = this.httpClient.request(method, url, req -> {
 			final HttpClientRequest proxyRequest = req.options(NettyPipeline.SendOptions::flushOnEach)
 					.headers(httpHeaders)
 					.chunkedTransfer(chunkedTransfer)
 					.failOnServerError(false)
-					.failOnClientError(false);
+					.failOnClientError(false); // 是否请求失败，抛出异常
 
 			if (preserveHost) {
 				String host = request.getHeaders().getFirst(HttpHeaders.HOST);
@@ -120,6 +126,7 @@ public class NettyRoutingFilter implements GlobalFilter, Ordered {
 						new ReadTimeoutHandler(properties.getResponseTimeout().toMillis(), TimeUnit.MILLISECONDS)));
 			}
 
+			// request body
 			return proxyRequest.sendHeaders() //I shouldn't need this
 					.send(request.getBody().map(dataBuffer ->
 							((NettyDataBuffer) dataBuffer).getNativeBuffer()));
@@ -127,6 +134,7 @@ public class NettyRoutingFilter implements GlobalFilter, Ordered {
 
 		return responseMono.doOnNext(res -> {
 			ServerHttpResponse response = exchange.getResponse();
+			// response header
 			// put headers and status so filters can modify the response
 			HttpHeaders headers = new HttpHeaders();
 
@@ -141,6 +149,7 @@ public class NettyRoutingFilter implements GlobalFilter, Ordered {
 					this.headersFilters.getIfAvailable(), headers, exchange, Type.RESPONSE);
 			
 			response.getHeaders().putAll(filteredResponseHeaders);
+			// response status
 			HttpStatus status = HttpStatus.resolve(res.status().code());
 			if (status != null) {
 				response.setStatusCode(status);
@@ -153,6 +162,7 @@ public class NettyRoutingFilter implements GlobalFilter, Ordered {
 
 			// Defer committing the response until all route filters have run
 			// Put client response as ServerWebExchange attribute and write response later NettyWriteResponseFilter
+			// 设置response到CLIENT_RESPONSE_ATTR到
 			exchange.getAttributes().put(CLIENT_RESPONSE_ATTR, res);
 		})
 				.onErrorMap(t -> properties.getResponseTimeout() != null && t instanceof ReadTimeoutException,

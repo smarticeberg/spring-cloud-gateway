@@ -34,10 +34,13 @@ public class ForwardRoutingFilter implements GlobalFilter, Ordered {
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 		URI requestUrl = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
 
+		// 判断ForwardRoutingFilter能否处理该请求
 		String scheme = requestUrl.getScheme();
+		// 满足两个条件：1.forward:// 前缀( Scheme ) 2.未被路由
 		if (isAlreadyRouted(exchange) || !"forward".equals(scheme)) {
 			return chain.filter(exchange);
 		}
+		// 设置已经路由
 		setAlreadyRouted(exchange);
 
 		//TODO: translate url?
@@ -46,6 +49,7 @@ public class ForwardRoutingFilter implements GlobalFilter, Ordered {
 			log.trace("Forwarding to URI: "+requestUrl);
 		}
 
+		// DispatcherHandler匹配并转发到当前网关实例本地接口
 		return this.dispatcherHandler.getIfAvailable().handle(exchange);
 	}
 }

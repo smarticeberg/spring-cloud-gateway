@@ -52,6 +52,7 @@ public class RouteToRequestUrlFilter implements GlobalFilter, Ordered {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+		// 获得Route
 		Route route = exchange.getAttribute(GATEWAY_ROUTE_ATTR);
 		if (route == null) {
 			return chain.filter(exchange);
@@ -67,7 +68,7 @@ public class RouteToRequestUrlFilter implements GlobalFilter, Ordered {
 			exchange.getAttributes().put(GATEWAY_SCHEME_PREFIX_ATTR, routeUri.getScheme());
 			routeUri = URI.create(routeUri.getSchemeSpecificPart());
 		}
-
+		// 拼接 requestUrl
 		URI mergedUrl = UriComponentsBuilder.fromUri(uri)
 				// .uri(routeUri)
 				.scheme(routeUri.getScheme())
@@ -75,7 +76,9 @@ public class RouteToRequestUrlFilter implements GlobalFilter, Ordered {
 				.port(routeUri.getPort())
 				.build(encoded)
 				.toUri();
+		// 设置GATEWAY_REQUEST_URL_ATTR
 		exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, mergedUrl);
+		// 提交过滤器继续过滤
 		return chain.filter(exchange);
 	}
 

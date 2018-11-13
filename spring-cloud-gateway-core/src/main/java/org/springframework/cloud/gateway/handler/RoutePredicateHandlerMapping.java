@@ -51,6 +51,7 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		} else {
 			managmentPort = null;
 		}
+		// 设置order为1是因为GatewayControllerEndpoint提供HTTP API，不经过网关，它通过RequestMappingHandlerMapping进行请求匹配处理。RequestMappingHandlerMapping的order=0，所以需要排在RoutePredicateHandlerMapping前面。
 		setOrder(1);		
 		setCorsConfigurations(globalCorsProperties.getCorsConfigurations());
 	}
@@ -61,8 +62,10 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		if (managmentPort != null && exchange.getRequest().getURI().getPort() == managmentPort.intValue()) {
 			return Mono.empty();
 		}
+		// 设置GATEWAY_HANDLER_MAPPER_ATTR为RoutePredicateHandlerMapping
 		exchange.getAttributes().put(GATEWAY_HANDLER_MAPPER_ATTR, getSimpleName());
 
+		// 匹配Route
 		return lookupRoute(exchange)
 				// .log("route-predicate-handler-mapping", Level.FINER) //name this
 				.flatMap((Function<Route, Mono<?>>) r -> {
@@ -71,9 +74,10 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 						logger.debug("Mapping [" + getExchangeDesc(exchange) + "] to " + r);
 					}
 
+					// 设置GATEWAY_ROUTE_ATTR为匹配的Route
 					exchange.getAttributes().put(GATEWAY_ROUTE_ATTR, r);
 					return Mono.just(webHandler);
-				}).switchIfEmpty(Mono.empty().then(Mono.fromRunnable(() -> {
+				}).switchIfEmpty(Mono.empty().then(Mono.fromRunnable(() -> { // 匹配不到route
 					exchange.getAttributes().remove(GATEWAY_PREDICATE_ROUTE_ATTR);
 					if (logger.isTraceEnabled()) {
 						logger.trace("No RouteDefinition found for [" + getExchangeDesc(exchange) + "]");
@@ -100,6 +104,11 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		return out.toString();
 	}
 
+	/**
+	 * 匹配Route
+	 * @param exchange
+	 * @return
+	 */
 	protected Mono<Route> lookupRoute(ServerWebExchange exchange) {
 		return this.routeLocator
 				.getRoutes()

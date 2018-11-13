@@ -54,6 +54,7 @@ public class RequestRateLimiterGatewayFilterFactory extends AbstractGatewayFilte
 	@SuppressWarnings("unchecked")
 	@Override
 	public GatewayFilter apply(Config config) {
+		// 获得KeyResolver
 		KeyResolver resolver = (config.keyResolver == null) ? defaultKeyResolver : config.keyResolver;
 		RateLimiter<Object> limiter = (config.rateLimiter == null) ? defaultRateLimiter : config.rateLimiter;
 
@@ -68,10 +69,11 @@ public class RequestRateLimiterGatewayFilterFactory extends AbstractGatewayFilte
 							exchange.getResponse().getHeaders().add(header.getKey(), header.getValue());
 						}
 
+						// 允许访问
 						if (response.isAllowed()) {
 							return chain.filter(exchange);
 						}
-
+						// 被限流，不允许访问
 						exchange.getResponse().setStatusCode(config.getStatusCode());
 						return exchange.getResponse().setComplete();
 					}));

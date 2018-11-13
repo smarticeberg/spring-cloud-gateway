@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 /**
  * @author Spencer Gibb
  */
+// 有序网关过滤器
 public class OrderedGatewayFilter implements GatewayFilter, Ordered {
 
 	private final GatewayFilter delegate;
